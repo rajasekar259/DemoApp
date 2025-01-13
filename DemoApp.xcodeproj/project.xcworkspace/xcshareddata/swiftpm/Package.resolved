@@ -1,0 +1,15 @@
+{
+  "originHash" : "5e047d6ac0720428a54c7e968b7ca47322507e7206160bece565d4d38cd0f16f",
+  "pins" : [
+    {
+      "identity" : "uikithelper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rajasekar259/UIKitHelper",
+      "state" : {
+        "revision" : "1fdb8534a3fa8eb70c049f20992a0a3a84dcb739",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
