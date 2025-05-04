@@ -8,18 +8,24 @@
 import SwiftUI
 import UIKit
 import RSlideSwitch
+import UIKitHelper
 
 struct ContentView: View {
     @State var isOn = false
 
     @State var showMaskCell = false
+    @State var showMaskCellSwiftUI = false
     @State var showTextShimmerAnimation = false
     @State var showLayoutChangeAnimation = false
     var body: some View {
         NavigationView {
             VStack {
-                Button("Custom Rectangle") {
+                Button("Custom Rectangle UIKit") {
                     showMaskCell.toggle()
+                }
+
+                Button("Custom Rectangle SwiftUI") {
+                    showMaskCellSwiftUI.toggle()
                 }
 
                 Button("Text Shimmer Animation") {
@@ -43,7 +49,11 @@ struct ContentView: View {
                 UIViewControllerSampleView()
             }
             .sheet(isPresented: $showMaskCell) {
-                UIViewSampleView(uiView: MaskCheckView())
+                UIViewContainer(uiView: MaskCheckView())
+                    .ignoresSafeArea()
+            }
+            .sheet(isPresented: $showMaskCellSwiftUI) {
+                CustomShapeView()
             }
         }
     }

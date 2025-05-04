@@ -10,102 +10,102 @@ import UIKit
 import SwiftUI
 import UIKitHelper
 
+struct CustomShapeMask: Shape {
+    func path(in rect: CGRect) -> Path {
+        let path = customShape(rect, cornerRadius: 10)
+        return Path(path.cgPath)
+    }
+}
 
-struct UIViewSampleView<View>: UIViewRepresentable where View: UIView {
-    let uiView: View
-    
-    func makeUIView(context: Context) -> View {
-        uiView
+struct CustomShapeView: View {
+    var body: some View {
+        ZStack {
+            Rectangle()
+                .foregroundStyle(.clear)
+                .background(
+                    LinearGradient(gradient: Gradient(colors: [.white, .gray, .black]), startPoint: .top, endPoint: .bottom)
+                )
+            Color.green
+                .frame(width: 350, height: 150)
+                .mask(CustomShapeMask())
+        }
+        .ignoresSafeArea()
     }
-    
-    func updateUIView(_ uiView: View, context: Context) {
-    }
+}
+
+#Preview {
+    CustomShapeView()
 }
 
 
 #Preview {
-    UIViewSampleView(uiView: MaskCheckView())
+    UIViewContainer(uiView: MaskCheckView())
+        .ignoresSafeArea()
 }
 
 
 class MaskCheckView: UIBaseView {
     let rectangle = UIView()
-    
+    let gradient = CAGradientLayer()
+
     override func loadView() {
         addSubview(rectangle)
         rectangle.backgroundColor = .red
-        backgroundColor = .green
+
+        gradient.colors = [UIColor.white.cgColor, UIColor.black.cgColor]
+        self.layer.insertSublayer(gradient, at: 0)
+
         super.loadView()
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        maskContent(self.rectangle.bounds, cornerRadius: 15)
+        gradient.frame = self.bounds
+        let path = customShape(self.rectangle.bounds, cornerRadius: 10)
+        let maskLayer = CAShapeLayer()
+        maskLayer.path = path.cgPath
+        self.rectangle.layer.mask = maskLayer
     }
     
     override func setupConstraints() {
         rectangle.setSize(width: 350, height: 150)
         rectangle.centerToSuperView()
-        
-//        let mask = CAShapeLayer()
-//        let path = UIBezierPath(roundedRect: .init(x: 0, y: 0, width: 200, height: 100), byRoundingCorners: [.topLeft, .bottomLeft, .bottomRight], cornerRadii: .init(width: 10, height: 10))
-//        
-//
-//        
-//        path.append(UIBezierPath(roundedRect: .init(x: 200, y: 0, width: 100, height: 50), byRoundingCorners: [.topRight, .bottomRight], cornerRadii: .init(width: 10, height: 10)))
-//        
-//        path.append(UIBezierPath(roundedRect: .init(x: 200, y: 50, width: 100, height: 50), byRoundingCorners: .allCorners, cornerRadii: .init(width: 0, height: 0)))
-//        
-//        path.append(UIBezierPath(roundedRect: .init(x: 200, y: 50, width: 100, height: 50), byRoundingCorners: .topLeft, cornerRadii: .init(width: 10, height: 10)))
-//        
-//        path.append(UIBezierPath(roundedRect: .init(x: 210, y: 60, width: 90, height: 40), byRoundingCorners: .allCorners, cornerRadii: .init(width: 10, height: 10)))
-//        
-//    
-//        mask.path = path.cgPath
-////        mask.fillColor = UIColor.yellow.cgColor
-////        mask.strokeColor = UIColor.blue.cgColor
-////        mask.lineWidth = 5
-//        mask.fillRule = .evenOdd
-//        rectangle.layer.mask = mask
-        
     }
-    
-    
-    func maskContent(_ bounds: CGRect, cornerRadius radius: CGFloat) {
-        let path = UIBezierPath()
-        
-        path.move(to: CGPoint(x: 0, y: bounds.height))
-        // top left corner
-        path.addArc(withCenter: CGPoint(x: radius, y: radius), radius: radius, startAngle: CGFloat.pi, endAngle: CGFloat.pi * 3 / 2, clockwise: true)
-        // top right corner
-        path.addArc(withCenter: CGPoint(x: bounds.width - radius, y: radius), radius: radius, startAngle: CGFloat.pi * 3 / 2, endAngle: 0, clockwise: true)
-        
-        // mid top right corner
-        path.addArc(withCenter: CGPoint(x: bounds.width - radius, y: bounds.height / 2 - radius), radius: radius, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: true)
-        
-        // mid inverted curve
-        path.addArc(withCenter: CGPoint(x: bounds.width * 2/3 + radius, y: bounds.height / 2 + radius), radius: radius, startAngle: CGFloat.pi * 3 / 2, endAngle: CGFloat.pi, clockwise: false)
-        
-        // mid bottom right
-        path.addArc(withCenter: CGPoint(x: bounds.width * 2/3 - radius, y: bounds.height - radius), radius: radius, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: true)
-        
-        // bottom left
-        path.addArc(withCenter: CGPoint(x: radius, y: bounds.height - radius), radius: radius, startAngle: CGFloat.pi / 2, endAngle: CGFloat.pi, clockwise: true)
-        
-        path.close()
- 
-        let xOffset: CGFloat = bounds.width * 2/3 + 8
-        let yOffset: CGFloat = bounds.height / 2 + 8
-        
-        path.append(
-            UIBezierPath(roundedRect: .init(x: xOffset, y: yOffset, width: bounds.width - xOffset, height: bounds.height - yOffset), cornerRadius: radius)
-        )
-        
-        let maskLayer = CAShapeLayer()
-        maskLayer.path = path.cgPath
-//        maskLayer.fillRule = .evenOdd
-        self.rectangle.layer.mask = maskLayer
-    }
+}
+
+func customShape(_ bounds: CGRect, cornerRadius radius: CGFloat) -> UIBezierPath {
+    let path = UIBezierPath()
+
+    path.move(to: CGPoint(x: 0, y: bounds.height))
+
+    // top left corner
+    path.addArc(withCenter: CGPoint(x: radius, y: radius), radius: radius, startAngle: CGFloat.pi, endAngle: CGFloat.pi * 3 / 2, clockwise: true)
+
+    // top right corner
+    path.addArc(withCenter: CGPoint(x: bounds.width - radius, y: radius), radius: radius, startAngle: CGFloat.pi * 3 / 2, endAngle: 0, clockwise: true)
+
+    // mid top right corner
+    path.addArc(withCenter: CGPoint(x: bounds.width - radius, y: bounds.height / 2 - radius), radius: radius, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: true)
+
+    // mid inverted curve
+    path.addArc(withCenter: CGPoint(x: bounds.width * 2/3 + radius, y: bounds.height / 2 + radius), radius: radius, startAngle: CGFloat.pi * 3 / 2, endAngle: CGFloat.pi, clockwise: false)
+
+    // mid bottom right
+    path.addArc(withCenter: CGPoint(x: bounds.width * 2/3 - radius, y: bounds.height - radius), radius: radius, startAngle: 0, endAngle: CGFloat.pi / 2, clockwise: true)
+
+    // bottom left
+    path.addArc(withCenter: CGPoint(x: radius, y: bounds.height - radius), radius: radius, startAngle: CGFloat.pi / 2, endAngle: CGFloat.pi, clockwise: true)
+
+    path.close()
+
+    // small rectangle
+    let xOffset: CGFloat = bounds.width * 2/3 + 8
+    let yOffset: CGFloat = bounds.height / 2 + 8
+    path.append(
+        UIBezierPath(roundedRect: .init(x: xOffset, y: yOffset, width: bounds.width - xOffset, height: bounds.height - yOffset), cornerRadius: radius)
+    )
+
+    return path
 }
 
 
